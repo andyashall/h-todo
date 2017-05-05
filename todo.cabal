@@ -27,6 +27,7 @@ executable todo-exe
                      , todo
                      , directory
                      , split
+                     , text
   default-language:    Haskell2010
 
 test-suite todo-test

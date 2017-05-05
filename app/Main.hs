@@ -2,18 +2,38 @@ import System.Environment
 import System.Directory  
 import System.IO  
 import Data.List  
-   
+import Data.List.Split (splitOn)
+
 main = do  
     putStrLn "What would you like to do? add, remove or view?" 
-    action <- getLine
-    case action of
-        "add" -> add
+    a <- getLine
+    let (ac:ar) = splitOn ": " a
+    let arg = intercalate " " ar
+    case ac of
+        "add" -> addWithOr arg
         "remove" -> remove "./todo.txt"
         "view" -> view "./todo.txt"
         _ -> print "Uh oh"
-  
-add :: IO ()  
-add = do
+
+addWithOr :: String -> IO()
+addWithOr arg = do
+    case arg of
+        "" -> addE
+        otherwise -> add arg
+
+removeWithOr :: String -> IO()
+removeWithOr arg = do
+    case arg of
+        "" -> removeE
+        otherwise -> rem arg
+
+add :: String -> IO ()  
+add todoItem = do
+    appendFile "./todo.txt" (todoItem ++ "\n")
+    putStrLn "Done"
+
+addE :: IO ()  
+addE = do
     putStrLn "What would you like to add?"
     todoItem <- getLine
     appendFile "./todo.txt" (todoItem ++ "\n")
@@ -25,7 +45,8 @@ view fileName = do
     let todoTasks = lines contents  
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks  
     putStr $ unlines numberedTasks  
-  
+
+-- Pass args though and if = "" then ask for number to delete 
 remove :: String -> IO ()  
 remove fileName = do  
     putStrLn "What number would you like to remove?"
@@ -41,3 +62,4 @@ remove fileName = do
     hClose tempHandle  
     removeFile fileName  
     renameFile tempName fileName  
+    putStrLn "Done"
