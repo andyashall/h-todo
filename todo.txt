@@ -1,7 +1,2 @@
-another
 Add this to a github repo
-hello again
-testing again
-more
-more tests
-and somem more
+handle errors

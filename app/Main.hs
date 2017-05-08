@@ -11,7 +11,7 @@ main = do
     let arg = intercalate " " ar
     case ac of
         "add" -> addWithOr arg
-        "remove" -> remove "./todo.txt"
+        "remove" -> removeWithOr arg
         "view" -> view "./todo.txt"
         _ -> print "Uh oh"
 
@@ -25,12 +25,13 @@ removeWithOr :: String -> IO()
 removeWithOr arg = do
     case arg of
         "" -> removeE
-        otherwise -> rem arg
+        otherwise -> remove arg
 
 add :: String -> IO ()  
 add todoItem = do
     appendFile "./todo.txt" (todoItem ++ "\n")
     putStrLn "Done"
+    main
 
 addE :: IO ()  
 addE = do
@@ -38,6 +39,7 @@ addE = do
     todoItem <- getLine
     appendFile "./todo.txt" (todoItem ++ "\n")
     putStrLn "Done"
+    main
   
 view :: String -> IO ()  
 view fileName = do  
@@ -45,12 +47,12 @@ view fileName = do
     let todoTasks = lines contents  
         numberedTasks = zipWith (\n line -> show n ++ " - " ++ line) [0..] todoTasks  
     putStr $ unlines numberedTasks  
+    main
 
 -- Pass args though and if = "" then ask for number to delete 
 remove :: String -> IO ()  
-remove fileName = do  
-    putStrLn "What number would you like to remove?"
-    numberString <- getLine
+remove numberString = do  
+    let fileName = "./todo.txt"
     handle <- openFile fileName ReadMode  
     (tempName, tempHandle) <- openTempFile "." "temp"  
     contents <- hGetContents handle  
@@ -63,3 +65,23 @@ remove fileName = do
     removeFile fileName  
     renameFile tempName fileName  
     putStrLn "Done"
+    main
+
+removeE :: IO ()  
+removeE = do  
+    let fileName = "./todo.txt"
+    putStrLn "What number would you like to remove?"
+    numberString <- getLine
+    handle <- openFile "./todo.txt" ReadMode  
+    (tempName, tempHandle) <- openTempFile "." "temp"  
+    contents <- hGetContents handle  
+    let number = read numberString  
+        todoTasks = lines contents  
+        newTodoItems = delete (todoTasks !! number) todoTasks  
+    hPutStr tempHandle $ unlines newTodoItems  
+    hClose handle  
+    hClose tempHandle  
+    removeFile fileName  
+    renameFile tempName fileName  
+    putStrLn "Done"
+    main
