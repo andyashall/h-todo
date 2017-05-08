@@ -13,7 +13,7 @@ main = do
         "add" -> addWithOr arg
         "remove" -> removeWithOr arg
         "view" -> view "./todo.txt"
-        _ -> print "Uh oh"
+        _ -> print "Unrecognized command"
 
 addWithOr :: String -> IO()
 addWithOr arg = do
@@ -49,7 +49,6 @@ view fileName = do
     putStr $ unlines numberedTasks  
     main
 
--- Pass args though and if = "" then ask for number to delete 
 remove :: String -> IO ()  
 remove numberString = do  
     let fileName = "./todo.txt"
