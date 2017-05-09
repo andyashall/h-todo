@@ -33,6 +33,10 @@ add todoItem = do
     putStrLn "Done"
     main
 
+addC :: String -> IO ()  
+addC todoItem = do
+    appendFile "./complete.txt" (todoItem ++ "\n")
+
 addE :: IO ()  
 addE = do
     putStrLn "What would you like to add?"
@@ -58,6 +62,7 @@ remove numberString = do
     let number = read numberString  
         todoTasks = lines contents  
         newTodoItems = delete (todoTasks !! number) todoTasks  
+    addC (todoTasks !! number)
     hPutStr tempHandle $ unlines newTodoItems  
     hClose handle  
     hClose tempHandle  
@@ -76,7 +81,8 @@ removeE = do
     contents <- hGetContents handle  
     let number = read numberString  
         todoTasks = lines contents  
-        newTodoItems = delete (todoTasks !! number) todoTasks  
+        newTodoItems = delete (todoTasks !! number) todoTasks 
+    addC (todoTasks !! number) 
     hPutStr tempHandle $ unlines newTodoItems  
     hClose handle  
     hClose tempHandle  
