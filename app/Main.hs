@@ -5,14 +5,19 @@ import Data.List
 import Data.List.Split (splitOn)
 
 main = do  
-    putStrLn "What would you like to do? add, remove or view?" 
+    putStrLn "What would you like to do? add, complete, view or delete?" 
     a <- getLine
-    let (ac:ar) = splitOn ": " a
+    let (ac:ar) = splitOn " " a
     let arg = intercalate " " ar
     case ac of
         "add" -> addWithOr arg
-        "remove" -> removeWithOr arg
+        "delete" -> delWithOr arg
+        "complete" -> completeWithOr arg
         "view" -> view "./todo.txt"
+        "a" -> addWithOr arg
+        "d" -> delWithOr arg
+        "c" -> completeWithOr arg
+        "v" -> view "./todo.txt"
         _ -> print "Unrecognized command"
 
 addWithOr :: String -> IO()
@@ -21,11 +26,17 @@ addWithOr arg = do
         "" -> addE
         otherwise -> add arg
 
-removeWithOr :: String -> IO()
-removeWithOr arg = do
+delWithOr :: String -> IO()
+delWithOr arg = do
     case arg of
-        "" -> removeE
-        otherwise -> remove arg
+        "" -> delE
+        otherwise -> del arg
+
+completeWithOr :: String -> IO()
+completeWithOr arg = do
+    case arg of
+        "" -> completeE
+        otherwise -> complete arg
 
 add :: String -> IO ()  
 add todoItem = do
@@ -53,8 +64,8 @@ view fileName = do
     putStr $ unlines numberedTasks  
     main
 
-remove :: String -> IO ()  
-remove numberString = do  
+complete :: String -> IO ()  
+complete numberString = do  
     let fileName = "./todo.txt"
     handle <- openFile fileName ReadMode  
     (tempName, tempHandle) <- openTempFile "." "temp"  
@@ -71,10 +82,10 @@ remove numberString = do
     putStrLn "Done"
     main
 
-removeE :: IO ()  
-removeE = do  
+completeE :: IO ()  
+completeE = do  
     let fileName = "./todo.txt"
-    putStrLn "What number would you like to remove?"
+    putStrLn "What number would you like to complete?"
     numberString <- getLine
     handle <- openFile "./todo.txt" ReadMode  
     (tempName, tempHandle) <- openTempFile "." "temp"  
@@ -83,6 +94,42 @@ removeE = do
         todoTasks = lines contents  
         newTodoItems = delete (todoTasks !! number) todoTasks 
     addC (todoTasks !! number) 
+    hPutStr tempHandle $ unlines newTodoItems  
+    hClose handle  
+    hClose tempHandle  
+    removeFile fileName  
+    renameFile tempName fileName  
+    putStrLn "Done"
+    main
+
+del :: String -> IO ()  
+del numberString = do  
+    let fileName = "./todo.txt"
+    handle <- openFile fileName ReadMode  
+    (tempName, tempHandle) <- openTempFile "." "temp"  
+    contents <- hGetContents handle  
+    let number = read numberString  
+        todoTasks = lines contents  
+        newTodoItems = delete (todoTasks !! number) todoTasks  
+    hPutStr tempHandle $ unlines newTodoItems  
+    hClose handle  
+    hClose tempHandle  
+    removeFile fileName  
+    renameFile tempName fileName  
+    putStrLn "Done"
+    main
+
+delE :: IO ()  
+delE = do  
+    let fileName = "./todo.txt"
+    putStrLn "What number would you like to delete?"
+    numberString <- getLine
+    handle <- openFile "./todo.txt" ReadMode  
+    (tempName, tempHandle) <- openTempFile "." "temp"  
+    contents <- hGetContents handle  
+    let number = read numberString  
+        todoTasks = lines contents  
+        newTodoItems = delete (todoTasks !! number) todoTasks  
     hPutStr tempHandle $ unlines newTodoItems  
     hClose handle  
     hClose tempHandle  

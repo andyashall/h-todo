@@ -1,1 +1,2 @@
-test2
+Add this to a github repo
+add license

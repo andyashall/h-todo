@@ -1,4 +1,2 @@
-Add this to a github repo
 handle errors
-add license
 add a history of completed tasks
